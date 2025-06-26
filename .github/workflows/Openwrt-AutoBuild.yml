@@ -290,10 +290,6 @@ jobs:
         sed -i "s/# CONFIG_IB is not set/CONFIG_IB=y/" .config
         rm -rf staging_dir/toolchain-*/bin/*openwrt-linux-musl-lto-dump
         rm -rf staging_dir/toolchain-*/initial
-        if [ ${{matrix.target}} == "qualcommax_ipq60xx" ]; then
-          mkdir -p firmwares && find bin/targets/qualcommax/ipq60xx -type f -name '*360v6*' -exec mv -t firmwares {} +
-          # echo "FIRMWARE_PATH=$PWD/firmwares" >> $GITHUB_ENV
-        fi
         df -hT
 
     - name: Organize files
@@ -301,10 +297,14 @@ jobs:
       continue-on-error: true
       run: |
         shopt -s extglob
+        mkdir -p firmwares
+        mv openwrt/bin/targets/*/*/{*combined*,*sysupgrade*,*factory*,*uImage*} ./firmwares/ 2>/dev/null || true
+        cp $GITHUB_WORKSPACE/openwrt/.config ./firmwares/${{matrix.target}}.config || true
+        cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ./firmwares/${{matrix.target}}_kernel.config || true
         cd openwrt/bin/targets/*/*/
-        cp $GITHUB_WORKSPACE/openwrt/.config ${{matrix.target}}.config || true
-        cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ${{matrix.target}}_kernel.config || true
-        rm -rf feeds.buildinfo version.buildinfo config.buildinfo profiles.json.b *.manifest kwrt-imagebuilder*
+        # cp $GITHUB_WORKSPACE/openwrt/.config ${{matrix.target}}.config || true
+        # cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ${{matrix.target}}_kernel.config || true
+        rm -rf *.buildinfo *.manifest kwrt-imagebuilder* profiles.json.b
         Emoji=("🎉" "🤞" "✨" "🎁" "🎈" "🎄" "🎨" "💋" "🍓" "🍕" "🍉" "💐" "🌴" "🚀" "🛸" "🗽" "⛅" "🌈" "🔥" "⛄" "🐶" "🏅" "🦄" "🐤")
         echo "EMOJI=${Emoji[$[$RANDOM % ${#Emoji[@]}]]}" >> $GITHUB_ENV
 
@@ -334,8 +334,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.OWRT_TOKEN }}
       with:
-        files: | 
-           openwrt/firmwares/*
+        files: "firmwares/*"
         name: ${{ env.date2 }} ${{matrix.target}}
         tag_name: ${{matrix.target}}
         body_path: release.txt
