@@ -290,6 +290,10 @@ jobs:
         sed -i "s/# CONFIG_IB is not set/CONFIG_IB=y/" .config
         rm -rf staging_dir/toolchain-*/bin/*openwrt-linux-musl-lto-dump
         rm -rf staging_dir/toolchain-*/initial
+        if [ ${{matrix.target}} == "qualcommax_ipq60xx" ]; then
+          mkdir -p firmwares && find bin/targets/qualcommax/ipq60xx -type f -name '*360v6*' -exec mv -t firmwares {} +
+          # echo "FIRMWARE_PATH=$PWD/firmwares" >> $GITHUB_ENV
+        fi
         df -hT
 
     - name: Organize files
@@ -297,15 +301,10 @@ jobs:
       continue-on-error: true
       run: |
         shopt -s extglob
-        mkdir -p firmwares
-        cp openwrt/bin/targets/*/*/{*combined*,*sysupgrade*,*factory*,*uImage*} ./firmwares/ 2>/dev/null || true
-        cp $GITHUB_WORKSPACE/openwrt/.config ./firmwares/${{matrix.target}}.config || true
-        cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ./firmwares/${{matrix.target}}_kernel.config || true
-        # echo "FIRMWARE_PATH=./firmwares" >> $GITHUB_ENV
         cd openwrt/bin/targets/*/*/
-        # cp $GITHUB_WORKSPACE/openwrt/.config ${{matrix.target}}.config || true
-        # cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ${{matrix.target}}_kernel.config || true
-        rm -rf kwrt-!(*imagebuilder*)
+        cp $GITHUB_WORKSPACE/openwrt/.config ${{matrix.target}}.config || true
+        cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ${{matrix.target}}_kernel.config || true
+        rm -rf feeds.buildinfo version.buildinfo config.buildinfo profiles.json.b *.manifest kwrt-imagebuilder*
         Emoji=("🎉" "🤞" "✨" "🎁" "🎈" "🎄" "🎨" "💋" "🍓" "🍕" "🍉" "💐" "🌴" "🚀" "🛸" "🗽" "⛅" "🌈" "🔥" "⛄" "🐶" "🏅" "🦄" "🐤")
         echo "EMOJI=${Emoji[$[$RANDOM % ${#Emoji[@]}]]}" >> $GITHUB_ENV
 
@@ -315,19 +314,7 @@ jobs:
       with:
         name: ${{ env.VERSION }}_${{matrix.target}}
         path: |
-          firmwares/
-
-    - name: Deploy imagebuilder to server
-      uses: easingthemes/ssh-deploy@main
-      if: env.SSH_PRIVATE_KEY && ! contains(github.event.action, 'noser')
-      with:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        ARGS: "-avzr"
-        SOURCE: openwrt/bin/targets
-        REMOTE_HOST: ${{ secrets.SERVER_HOST }}
-        REMOTE_PORT: ${{ secrets.SERVER_PORT }}
-        REMOTE_USER: root
-        TARGET: "/www/wwwroot/dl.openwrt.ai/releases/tmp/"
+          openwrt/bin/targets/
 
     - name: Create release
       id: create_release
@@ -335,28 +322,35 @@ jobs:
       continue-on-error: true
       run: |
         echo -e "墙内加速下载 🚀:\n" >> release.txt
-        echo -e "[腾讯云] (https://dl.openwrt.ai/firmware/${{matrix.target}}/ ☁)\n" >> release.txt
+        echo -e " (https://github.com/tejing/Kopenwrt/tree/${{matrix.target}}/ ☁)\n" >> release.txt
         [ ${{ env.WETRANS }} ] && echo -e "[WeTransfer] (${{ env.WETRANS }} 🗽)\n" >> release.txt
         [ ${{ env.COWURL }} ] && echo -e "[奶牛上传] (${{ env.COWURL }} 🐮)\n" >> release.txt
         [ ${{ env.NOTICE }} ] && echo -e "${{ env.NOTICE }}" >> release.txt || true
 
     - name: Upload firmware for release
-      uses: softprops/action-gh-release@master
+      uses: softprops/action-gh-release@v2
       continue-on-error: true
       if: env.REPO_TOKEN && env.UPLOAD_FIRMWARE_FOR_RELEASE == 'true'
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN_KIDDIN9 }}
       with:
-        files: "firmwares/*"
+        files: | 
+           openwrt/firmwares/*
         name: ${{ env.date2 }} ${{matrix.target}}
         tag_name: ${{matrix.target}}
         body_path: release.txt
     
-    - name: WeChat notification
-      continue-on-error: true
-      if: env.SCKEY
-      run: |
-        # [ steps.compile.outputs.status == 'success' ] && curl https://sctapi.ftqq.com/${{ secrets.SCKEY }}.send?text=🎉OpenWrt_${{ env.VERSION }}_${{matrix.target}}编译完成😋|| curl https://sctapi.ftqq.com/${{ secrets.SCKEY }}.send?text=❌OpenWrt_${{ env.VERSION }}_${{matrix.target}}编译失败😂
+    - name: Deploy imagebuilder to server
+      uses: easingthemes/ssh-deploy@main
+      if: env.SSH_PRIVATE_KEY && ! contains(github.event.action, 'noser')
+      with:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        ARGS: "-avzr"
+        SOURCE: openwrt/bin/targets/
+        REMOTE_HOST: ${{ secrets.SERVER_HOST }}
+        REMOTE_PORT: ${{ secrets.SERVER_PORT }}
+        REMOTE_USER: root
+        TARGET: "/www/wwwroot/dl.openwrt.ai/releases/tmp/"
 
     - name: Telegram notification
       if: env.TELEGRAM_TOKEN && ! contains(github.event.action, 'notg')
@@ -369,7 +363,7 @@ jobs:
       continue-on-error: true
       with:
         token: ${{ secrets.TOKEN_KIDDIN9 }}
-        retain_days: 100
+        retain_days: 3
         keep_minimum_runs: 0
 
     - name: Remove old Releases
