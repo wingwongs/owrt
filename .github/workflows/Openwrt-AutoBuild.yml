@@ -298,7 +298,7 @@ jobs:
       run: |
         shopt -s extglob
         mkdir -p firmwares
-        mv openwrt/bin/targets/*/*/{*combined*,*sysupgrade*,*factory*,*uImage*} ./firmwares/ 2>/dev/null || true
+        cp openwrt/bin/targets/*/*/{*combined*,*sysupgrade*,*factory*,*uImage*} ./firmwares/ 2>/dev/null || true
         cp $GITHUB_WORKSPACE/openwrt/.config ./firmwares/${{matrix.target}}.config || true
         cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ./firmwares/${{matrix.target}}_kernel.config || true
         cd openwrt/bin/targets/*/*/
