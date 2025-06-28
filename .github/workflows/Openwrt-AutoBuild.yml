@@ -297,17 +297,18 @@ jobs:
       continue-on-error: true
       run: |
         shopt -s extglob
+        # cd openwrt/bin/targets/*/*/
+        # cp $GITHUB_WORKSPACE/openwrt/.config ${{matrix.target}}.config || true
+        # cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ${{matrix.target}}_kernel.config || true
+        rm -rf openwrt/bin/targets/*/*/{*buildinfo*,*manifest*,*json*,kwrt-imagebuilder*,*sha256sums*} 2>/dev/null || true
+        Emoji=("🎉" "🤞" "✨" "🎁" "🎈" "🎄" "🎨" "💋" "🍓" "🍕" "🍉" "💐" "🌴" "🚀" "🛸" "🗽" "⛅" "🌈" "🔥" "⛄" "🐶" "🏅" "🦄" "🐤")
+        echo "EMOJI=${Emoji[$[$RANDOM % ${#Emoji[@]}]]}" >> $GITHUB_ENV
         mkdir -p firmwares
         cp openwrt/bin/targets/*/*/{*combined*,*sysupgrade*,*factory*,*uImage*} ./firmwares/ 2>/dev/null || true
         cp $GITHUB_WORKSPACE/openwrt/.config ./firmwares/${{matrix.target}}.config || true
         cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ./firmwares/${{matrix.target}}_kernel.config || true
+        cd firmwares
         echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
-        cd openwrt/bin/targets/*/*/
-        # cp $GITHUB_WORKSPACE/openwrt/.config ${{matrix.target}}.config || true
-        # cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ${{matrix.target}}_kernel.config || true
-        rm -rf *.buildinfo *.manifest kwrt-imagebuilder* profiles.json.b
-        Emoji=("🎉" "🤞" "✨" "🎁" "🎈" "🎄" "🎨" "💋" "🍓" "🍕" "🍉" "💐" "🌴" "🚀" "🛸" "🗽" "⛅" "🌈" "🔥" "⛄" "🐶" "🏅" "🦄" "🐤")
-        echo "EMOJI=${Emoji[$[$RANDOM % ${#Emoji[@]}]]}" >> $GITHUB_ENV
 
     - name: Upload firmware for artifact
       uses: actions/upload-artifact@main
