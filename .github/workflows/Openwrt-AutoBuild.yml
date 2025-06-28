@@ -301,6 +301,7 @@ jobs:
         cp openwrt/bin/targets/*/*/{*combined*,*sysupgrade*,*factory*,*uImage*} ./firmwares/ 2>/dev/null || true
         cp $GITHUB_WORKSPACE/openwrt/.config ./firmwares/${{matrix.target}}.config || true
         cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ./firmwares/${{matrix.target}}_kernel.config || true
+        echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
         cd openwrt/bin/targets/*/*/
         # cp $GITHUB_WORKSPACE/openwrt/.config ${{matrix.target}}.config || true
         # cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ${{matrix.target}}_kernel.config || true
@@ -334,7 +335,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.OWRT_TOKEN }}
       with:
-        files: "firmwares/*"
+        files: "${{ env.FIRMWARE_PATH }}/*"
         name: ${{ env.date2 }} ${{matrix.target}}
         tag_name: ${{matrix.target}}
         body_path: release.txt
