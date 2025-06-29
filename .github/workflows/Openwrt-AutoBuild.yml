@@ -308,7 +308,7 @@ jobs:
         cp $GITHUB_WORKSPACE/openwrt/.config ./firmwares/${{matrix.target}}.config || true
         cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ./firmwares/${{matrix.target}}_kernel.config || true
         cd firmwares
-        rename 's/^kwrt-/owrt-${{ env.date2 }}/' kwrt-*
+        rename 's/^kwrt-/owrt-$(date +%m-%d-)/' kwrt-*
         echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
 
     - name: Upload firmware for artifact
@@ -324,8 +324,8 @@ jobs:
       if: env.REPO_TOKEN && env.UPLOAD_FIRMWARE_FOR_RELEASE == 'true'
       continue-on-error: true
       run: |
-        echo -e "墙内加速下载 🚀:\n" >> release.txt
-        echo -e " (https://github.com/tejing/Kopenwrt/tree/${{matrix.target}}/ ☁)\n" >> release.txt
+        echo -e "网址 🚀:\n" >> release.txt
+        echo -e " (https://github.com/wingwongs/owrt/tree/${{matrix.target}}/ ☁)\n" >> release.txt
         [ ${{ env.WETRANS }} ] && echo -e "[WeTransfer] (${{ env.WETRANS }} 🗽)\n" >> release.txt
         [ ${{ env.COWURL }} ] && echo -e "[奶牛上传] (${{ env.COWURL }} 🐮)\n" >> release.txt
         [ ${{ env.NOTICE }} ] && echo -e "${{ env.NOTICE }}" >> release.txt || true
