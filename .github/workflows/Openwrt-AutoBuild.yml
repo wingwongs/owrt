@@ -266,7 +266,14 @@ jobs:
         mixkey: ${{ matrix.target }}
         clean: ${{ contains(github.event.action, 'nocache') }}
         prefix: ${{ github.workspace }}/openwrt
-    
+
+    - name: Disk Cleanup
+      run: |
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        sudo apt-get clean
+        
     - name: Check space usage
       run: |
         shopt -s extglob
@@ -285,9 +292,9 @@ jobs:
       run: |
         shopt -s extglob
         cd openwrt
-        rm -rf dl/util-linux-2.40.2*
-        make tools/util-linux/clean
-        make tools/util-linux/prepare
+        # rm -rf dl/util-linux-2.40.2*
+        # make tools/util-linux/clean
+        # make tools/util-linux/prepare
         echo -e "$(($(nproc)+1)) thread compile"
         make -j1 V=s 
         sed -i "s/# CONFIG_IB is not set/CONFIG_IB=y/" .config
