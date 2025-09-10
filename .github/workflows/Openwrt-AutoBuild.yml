@@ -285,6 +285,9 @@ jobs:
       run: |
         shopt -s extglob
         cd openwrt
+        rm -rf dl/util-linux-2.40.2*
+        make tools/util-linux/clean
+        make tools/util-linux/prepare
         echo -e "$(($(nproc)+1)) thread compile"
         make -j1 V=s 
         sed -i "s/# CONFIG_IB is not set/CONFIG_IB=y/" .config
