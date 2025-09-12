@@ -267,12 +267,12 @@ jobs:
         clean: ${{ contains(github.event.action, 'nocache') }}
         prefix: ${{ github.workspace }}/openwrt
 
-    - name: Disk Cleanup
-      run: |
-        sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /usr/local/lib/android
-        sudo rm -rf /opt/ghc
-        sudo apt-get clean
+    #- name: Disk Cleanup
+      #run: |
+        #sudo rm -rf /usr/share/dotnet
+        #sudo rm -rf /usr/local/lib/android
+        #sudo rm -rf /opt/ghc
+        #sudo apt-get clean
         
     - name: Check space usage
       run: |
