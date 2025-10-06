@@ -12,7 +12,7 @@ on:
   repository_dispatch:
 
 env:
-  REPO_TOKEN: ${{ secrets.TOKEN_KIDDIN9 }}
+  REPO_TOKEN: ${{ secrets.OWRT_TOKEN }}
   PPPOE_USERNAME: ${{ secrets.PPPOE_USERNAME }}
   PPPOE_PASSWD: ${{ secrets.PPPOE_PASSWD }}
   SCKEY: ${{ secrets.SCKEY }}
@@ -61,7 +61,7 @@ jobs:
         echo "UPLOAD_FIRMWARE_FOR_RELEASE=${UPLOAD_FIRMWARE_FOR_RELEASE}" >> $GITHUB_ENV
         echo "UPLOAD_FIRMWARE_TO_COWTRANSFER=${UPLOAD_FIRMWARE_TO_COWTRANSFER}" >> $GITHUB_ENV
         echo "UPLOAD_FIRMWARE_TO_WETRANSFER=${UPLOAD_FIRMWARE_TO_WETRANSFER}" >> $GITHUB_ENV
-        sed -i "1a REPO_TOKEN=${{ secrets.TOKEN_KIDDIN9 }}" ${GITHUB_WORKSPACE}/devices/common/diy.sh
+        sed -i "1a REPO_TOKEN=${{ secrets.OWRT_TOKEN }}" ${GITHUB_WORKSPACE}/devices/common/diy.sh
         sed -i "1a TARGET=${{matrix.target}}" ${GITHUB_WORKSPACE}/devices/common/diy.sh
         if [ ${{matrix.target}} == "x86_64" ]; then
             echo "ARCH=linux/amd64" >> $GITHUB_ENV
@@ -100,11 +100,11 @@ jobs:
       continue-on-error: true
       if: contains(github.event.action, 'pkg')
       run: |
-        status=$(curl -H "Authorization: token ${{ secrets.TOKEN_KIDDIN9 }}" -s "https://api.github.com/repos/kiddin9/kwrt-packages/actions/runs" | jq -r '.workflow_runs[0].status')
+        status=$(curl -H "Authorization: token ${{ secrets.OWRT_TOKEN }}" -s "https://api.github.com/repos/kiddin9/kwrt-packages/actions/runs" | jq -r '.workflow_runs[0].status')
         if [[ "$status" == "completed" ]]; then
           curl -X POST https://api.github.com/repos/kiddin9/kwrt-packages/dispatches \
             -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Authorization: token ${{ secrets.TOKEN_KIDDIN9 }}" \
+            -H "Authorization: token ${{ secrets.OWRT_TOKEN }}" \
           --data '{"event_type": "update"}'
         fi
 
@@ -147,7 +147,7 @@ jobs:
       run: |
         set -x
         TAG_INFO="$(curl -gs -H 'Content-Type: application/json' \
-           -H "Authorization: Bearer ${{ secrets.TOKEN_KIDDIN9 }}" \
+           -H "Authorization: Bearer ${{ secrets.OWRT_TOKEN }}" \
            -X POST -d '{ "query": "query {repository(owner: \"openwrt\", name: \"openwrt\") {refs(refPrefix: \"refs/tags/\", first: 4, orderBy: {field: TAG_COMMIT_DATE, direction: DESC}) {nodes {name target { ... on Tag {tagger {date}}}}}}}"}' https://api.github.com/graphql)"
         TAG_DATE="$( echo ${TAG_INFO} | jq -r '.data.repository.refs.nodes[] | select(.name | startswith("v24")) | .target.tagger.date' | head -n 1)"
         if [[ $(( ($(date +%s) - $(date -d "$TAG_DATE" +%s)) / 86400 )) -lt 20 ]]; then
@@ -297,9 +297,17 @@ jobs:
       continue-on-error: true
       run: |
         shopt -s extglob
-        cd openwrt/bin/targets/*/*/
-        cp $GITHUB_WORKSPACE/openwrt/.config ${{matrix.target}}.config || true
-        cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ${{matrix.target}}_kernel.config || true
+        rm -rf openwrt/bin/targets/*/*/{*buildinfo*,*manifest*,*json*,kwrt-imagebuilder*,*sha256sums*} 2>/dev/null || true
+        mkdir -p firmwares
+        cp openwrt/bin/targets/*/*/{*combined*,*sysupgrade*,*factory*,*uImage*} ./firmwares/ 2>/dev/null || true
+        cp $GITHUB_WORKSPACE/openwrt/.config ./firmwares/${{matrix.target}}.config || true
+        cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ./firmwares/${{matrix.target}}_kernel.config || true
+        cd firmwares
+        rename 's/^kwrt-/owrt-${{ env.VERSION }}-/' kwrt-*
+        echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+        cd $GITHUB_WORKSPACE/openwrt/bin/targets/*/*/
+        # cp $GITHUB_WORKSPACE/openwrt/.config ${{matrix.target}}.config || true
+        # cp $GITHUB_WORKSPACE/openwrt/build_dir/target-*/linux-*/linux-*/.config ${{matrix.target}}_kernel.config || true
         rm -rf kwrt-!(*imagebuilder*)
         Emoji=("🎉" "🤞" "✨" "🎁" "🎈" "🎄" "🎨" "💋" "🍓" "🍕" "🍉" "💐" "🌴" "🚀" "🛸" "🗽" "⛅" "🌈" "🔥" "⛄" "🐶" "🏅" "🦄" "🐤")
         echo "EMOJI=${Emoji[$[$RANDOM % ${#Emoji[@]}]]}" >> $GITHUB_ENV
@@ -340,7 +348,7 @@ jobs:
       continue-on-error: true
       if: env.REPO_TOKEN && env.UPLOAD_FIRMWARE_FOR_RELEASE == 'true'
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN_KIDDIN9 }}
+        GITHUB_TOKEN: ${{ secrets.OWRT_TOKEN }}
       with:
         files: "${{ env.FIRMWARE }}/*"
         name: ${{ env.date2 }} ${{matrix.target}} ${{ env.EMOJI }}
@@ -363,7 +371,7 @@ jobs:
       uses: GitRML/delete-workflow-runs@main
       continue-on-error: true
       with:
-        token: ${{ secrets.TOKEN_KIDDIN9 }}
+        token: ${{ secrets.OWRT_TOKEN }}
         retain_days: 100
         keep_minimum_runs: 0
 
@@ -375,4 +383,4 @@ jobs:
         keep_latest: 15
         delete_tags: true
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN_KIDDIN9 }}
+        GITHUB_TOKEN: ${{ secrets.OWRT_TOKEN }}
