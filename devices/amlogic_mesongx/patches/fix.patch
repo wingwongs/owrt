@@ -1,0 +1,48 @@
+--- a/target/imagebuilder/Makefile
++++ b/target/imagebuilder/Makefile
+@@ -103,7 +103,7 @@ endif
+ 		mkdir -p $(PKG_BUILD_DIR)/target/linux/feeds; \
+ 		$(CP) -L $(TOPDIR)/target/linux/feeds/$(BOARD) $(PKG_BUILD_DIR)/target/linux/feeds; \
+ 	else \
+-		$(CP) -L $(TOPDIR)/target/linux/$(BOARD) $(PKG_BUILD_DIR)/target/linux; \
++		$(CP) $(TOPDIR)/target/linux/$(BOARD) $(PKG_BUILD_DIR)/target/linux; \
+ 	fi
+ 	if [ -d $(TOPDIR)/staging_dir/host/lib/grub ]; then \
+ 		$(CP) $(TOPDIR)/staging_dir/host/lib/grub/ $(PKG_BUILD_DIR)/staging_dir/host/lib; \
+
+--- a/package/kernel/linux/modules/netdevices.mk
++++ b/package/kernel/linux/modules/netdevices.mk
+@@ -290,7 +290,9 @@ define KernelPackage/phy-broadcom
+    TITLE:=Broadcom Ethernet PHY driver
+    KCONFIG:=CONFIG_BROADCOM_PHY
+    DEPENDS:=+kmod-libphy +kmod-phylib-broadcom
+-   FILES:=$(LINUX_DIR)/drivers/net/phy/broadcom.ko
++   FILES:= \
++	$(LINUX_DIR)/drivers/net/phy/broadcom.ko \
++	$(LINUX_DIR)/drivers/net/phy/bcm-phy-ptp.ko
+    AUTOLOAD:=$(call AutoLoad,18,broadcom,1)
+ endef
+ 
+
+--- a/package/kernel/linux/modules/netfilter.mk
++++ b/package/kernel/linux/modules/netfilter.mk
+@@ -247,6 +247,7 @@ $(eval $(call KernelPackage,ipt-conntrack))
+ 
+ define KernelPackage/ipt-conntrack-extra
+   TITLE:=Extra connection tracking modules
++  DEPENDS:=+kmod-nf-conncount
+   KCONFIG:=$(KCONFIG_IPT_CONNTRACK_EXTRA)
+   FILES:=$(foreach mod,$(IPT_CONNTRACK_EXTRA-m),$(LINUX_DIR)/net/$(mod).ko)
+   AUTOLOAD:=$(call AutoProbe,$(notdir $(IPT_CONNTRACK_EXTRA-m)))
+
+--- a/package/kernel/linux/modules/netfilter.mk
++++ b/package/kernel/linux/modules/netfilter.mk
+@@ -717,7 +717,7 @@ $(eval $(call KernelPackage,ipt-tproxy))
+ 
+ define KernelPackage/ipt-tee
+   TITLE:=TEE support
+-  DEPENDS:=+kmod-ipt-conntrack
++  DEPENDS:=+kmod-ipt-conntrack +kmod-nf-dup-inet
+   KCONFIG:=$(KCONFIG_IPT_TEE)
+   FILES:=$(foreach mod,$(IPT_TEE-m),$(LINUX_DIR)/net/$(mod).ko)
+   AUTOLOAD:=$(call AutoProbe,$(notdir nf_tee $(IPT_TEE-m)))
