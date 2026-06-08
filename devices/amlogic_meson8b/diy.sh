@@ -25,6 +25,6 @@ target/linux/amlogic/Makefile
 
 rm -rf target/linux/amlogic/patches-6.12/{001-dts-s905d-fix-high-load.patch,902-use-system-LED-for-OpenWrt.patch}
 
-rm -rf package/feeds/kiddin9/*_QMI_WWAN
+rm -rf package/feeds/kiddin9/{*_QMI_WWAN,quectel_MHI}
 
 
