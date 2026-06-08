@@ -15,11 +15,15 @@ sed -i 's/Os/O2/g' include/target.mk
 git_clone_path master https://github.com/coolsnowwolf/lede target/linux/amlogic
 
 mv -f target/linux/amlogic/patches-6.6 target/linux/amlogic/patches-6.12
+mv -f target/linux/amlogic/config-6.6 target/linux/amlogic/config-6.12
 mv -f target/linux/amlogic/meson8b/config-6.6 target/linux/amlogic/meson8b/config-6.12
 
-sed -i "s/KERNEL_PATCHVER:=6.6/KERNEL_PATCHVER:=6.12/" target/linux/amlogic/Makefile
+sed -i -e "s/KERNEL_PATCHVER:=6.6/KERNEL_PATCHVER:=6.12/" \
+       -e "/KERNEL_TESTING_PATCHVER/d" \
+       -e "/autocore-arm/d" \
+target/linux/amlogic/Makefile
 
-sed -i "s/wpad-openssl/wpad-basic-mbedtls/" target/linux/amlogic/image/Makefile
+rm -rf target/linux/amlogic/patches-6.12/{001-dts-s905d-fix-high-load.patch,902-use-system-LED-for-OpenWrt.patch}
 
 rm -rf package/feeds/kiddin9/*_QMI_WWAN
 
