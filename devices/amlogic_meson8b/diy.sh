@@ -21,6 +21,7 @@ mv -f target/linux/amlogic/meson8b/config-6.6 target/linux/amlogic/meson8b/confi
 sed -i -e "s/KERNEL_PATCHVER:=6.6/KERNEL_PATCHVER:=6.12/" \
        -e "/KERNEL_TESTING_PATCHVER/d" \
        -e "/autocore-arm/d" \
+	   -e "s/ pci pcie//" \
 target/linux/amlogic/Makefile
 
 rm -rf target/linux/amlogic/patches-6.12/{001-dts-s905d-fix-high-load.patch,902-use-system-LED-for-OpenWrt.patch}
