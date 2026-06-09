@@ -672,7 +672,7 @@
 +  DEVICE_MODEL := AGS21
 +  DEVICE_DTS := mt7981b-aigo-ags21
 +  DEVICE_DTS_DIR := ../dts
-+  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware automount coremark blkid blockdev fdisk f2fsck mkf2fs kmod-mmc mmc-utils
++  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware coremark blkid blockdev fdisk f2fsck mkf2fs kmod-mmc mmc-utils
 +  KERNEL := kernel-bin | lzma | fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
 +  KERNEL_INITRAMFS := kernel-bin | lzma | \
 +	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
@@ -692,3 +692,53 @@
  				   pad-to 44M | mt7986-bl2 spim-nand-ubi-ddr4 |\
  				   pad-to 45M | mt7986-bl31-uboot bananapi_bpi-r3-snand |\
  				   pad-to 49M | mt7986-bl2 nor-ddr4 |\
+@@ -685,9 +682,6 @@ define Device/bananapi_bpi-r4-common
+   ARTIFACT/sdcard.img.gz	:= mt798x-gpt sdmmc |\
+ 				   pad-to 17k | mt7988-bl2 sdmmc-comb |\
+ 				   pad-to 6656k | mt7988-bl31-uboot $$(DEVICE_NAME)-sdmmc |\
+-				$(if $(CONFIG_TARGET_ROOTFS_INITRAMFS),\
+-				   pad-to 12M | append-image-stage initramfs-recovery.itb | check-size 44m |\
+-				) \
+ 				   pad-to 44M | mt7988-bl2 spim-nand-ubi-comb |\
+ 				   pad-to 45M | mt7988-bl31-uboot $$(DEVICE_NAME)-snand |\
+ 				   pad-to 51M | mt7988-bl2 emmc-comb |\
+@@ -762,9 +756,6 @@ define Device/bananapi_bpi-r4-lite
+   ARTIFACT/sdcard.img.gz	:= mt798x-gpt sdmmc |\
+ 				   pad-to 17k | mt7987-bl2 sdmmc-comb |\
+ 				   pad-to 6656k | mt7987-bl31-uboot bananapi_bpi-r4-lite-sdmmc |\
+-				$(if $(CONFIG_TARGET_ROOTFS_INITRAMFS),\
+-				   pad-to 12M | append-image-stage initramfs-recovery.itb | check-size 44m |\
+-				) \
+ 				   pad-to 44M | mt7987-bl2 spim-nand2-ubi-comb |\
+ 				   pad-to 45M | mt7987-bl31-uboot bananapi_bpi-r4-lite-snand |\
+ 				   pad-to 49M | mt7987-bl2 nor-comb |\
+@@ -2103,9 +2094,6 @@ define Device/mediatek_mt7981-rfb
+   ARTIFACT/sdcard.img.gz	:= mt798x-gpt sdmmc |\
+ 				   pad-to 17k | mt7981-bl2 sdmmc-ddr3 |\
+ 				   pad-to 6656k | mt7981-bl31-uboot rfb-sd |\
+-				$(if $(CONFIG_TARGET_ROOTFS_INITRAMFS),\
+-				   pad-to 12M | append-image-stage initramfs.itb | check-size 44m |\
+-				) \
+ 				   pad-to 44M | mt7981-bl2 spim-nand-ddr3 |\
+ 				   pad-to 45M | mt7981-bl31-uboot rfb-spim-nand |\
+ 				   pad-to 49M | mt7981-bl2 nor-ddr3 |\
+@@ -2200,9 +2188,6 @@ define Device/mediatek_mt7987a-rfb
+   ARTIFACT/sdcard.img.gz	:= mt798x-gpt sdmmc |\
+ 				   pad-to 17k | mt7987-bl2 sdmmc-comb |\
+ 				   pad-to 6656k | mt7987-bl31-uboot rfb-sd |\
+-				$(if $(CONFIG_TARGET_ROOTFS_INITRAMFS),\
+-				  pad-to 12M | append-image-stage initramfs.itb | check-size 44m |\
+-				) \
+ 				$(if $(CONFIG_TARGET_ROOTFS_SQUASHFS),\
+ 				  pad-to 64M | append-image squashfs-sysupgrade.itb | check-size |\
+ 				) \
+@@ -2256,9 +2241,6 @@ define Device/mediatek_mt7988a-rfb
+   ARTIFACT/sdcard.img.gz	:= mt798x-gpt sdmmc |\
+ 				   pad-to 17k | mt7988-bl2 sdmmc-comb |\
+ 				   pad-to 6656k | mt7988-bl31-uboot rfb-sd |\
+-				$(if $(CONFIG_TARGET_ROOTFS_INITRAMFS),\
+-				   pad-to 12M | append-image-stage initramfs.itb | check-size 44m |\
+-				) \
+ 				   pad-to 44M | mt7988-bl2 spim-nand-comb |\
+ 				   pad-to 45M | mt7988-bl31-uboot rfb-snand |\
+ 				   pad-to 51M | mt7988-bl2 nor-comb |\
