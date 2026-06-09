@@ -20,4 +20,5 @@ git clone https://github.com/qosmio/sqm-scripts-nss.git package/sqm-scripts-nss
 sed -i "/ECM_INTERFACE_RAWIP_ENABLE/d"  package/nss-packages/qca-nss-ecm/Makefile
 rm -rf package/nss-packages/nss-userspace-oss
 
+sed -i "s/# CONFIG_DEBUG_INFO_BTF is not set/CONFIG_DEBUG_INFO_BTF=y/" target/linux/generic/config-*
 sed -i "s/luci uboot-envtools wpad-openssl/luci uboot-envtools wpad-mbedtls/" target/linux/qualcommax/Makefile
