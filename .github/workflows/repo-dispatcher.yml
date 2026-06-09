@@ -22,7 +22,7 @@ on:
         default: ''
 
 env:
-  TOKEN_KIDDIN9: ${{ secrets.TOKEN_KIDDIN9 }}
+  TOKEN_KIDDIN9: ${{ secrets.OWRT_TOKEN }}
   TZ: Asia/Shanghai
 
 jobs:
