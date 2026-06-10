@@ -125,7 +125,6 @@ jobs:
         REPO_BRANCH="openwrt-25.12"
         fi
         #echo "CONFIG_VERSION_REPO=\"https://dl.openwrt.ai/releases/`echo $REPO_BRANCH  | cut -d . -f 1,2 | sed -e 's/^v//'`\"">>devices/common/.config
-        echo "CONFIG_VERSION_REPO=\"https://dl.openwrt.ai/releases/25.12\"">>devices/common/.config
         if [[ ! "${{ env.REPO_BRANCH }}" && "$REPO_URL" == "https://github.com/openwrt/openwrt" ]]; then
             git clone $REPO_URL -b $REPO_BRANCH openwrt
         elif [[ ! "${{ env.REPO_BRANCH }}" ]]; then
@@ -140,6 +139,14 @@ jobs:
                 git checkout ${REPO_BRANCH}
             fi
         fi
+
+    - name: Free up disk space
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo mkdir -p -m 777 /mnt/openwrt/build_dir openwrt/staging_dir
+        ln -sf /mnt/openwrt/build_dir openwrt/build_dir
+        sudo ln -sf openwrt/staging_dir /mnt/openwrt/staging_dir
 
     - name: Load custom configuration
       run: |
