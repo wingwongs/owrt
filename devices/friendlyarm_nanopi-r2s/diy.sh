@@ -4,6 +4,13 @@
 SHELL_FOLDER=$(dirname $(readlink -f "$0"))
 /bin/bash "$SHELL_FOLDER/../rockchip_armv8/diy.sh"
 
+# 解决 linux-6.12.92 下 953-net-patch-linux-kernel-to-support-shortcut-fe.patch 冲突问题
+# 在编译 rockchip_armv8 架构时，直接删除此补丁，因为 SFE 在 6.12 内核中通常需要清理此残留补丁以防冲突
+rm -f target/linux/generic/hack-6.12/952-add-net-conntrack-events-support-multiple-registrant.patch
+rm -f target/linux/generic/hack-6.12/953-net-patch-linux-kernel-to-support-shortcut-fe.patch
+rm -f target/linux/generic/hack-6.12/930-Revert-Revert-Revert-driver-core-Set-fw_devlink-on-b.patch
+
+
 # 创建首开机脚本以设定网络配置、网口和IP/DNS等
 mkdir -p files/etc/uci-defaults
 cat << 'EOF' > files/etc/uci-defaults/99-custom-settings
