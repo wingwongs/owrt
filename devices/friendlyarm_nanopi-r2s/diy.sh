@@ -54,8 +54,8 @@ chmod +x files/etc/uci-defaults/99-custom-settings
 # 由于 kiddin9-packages 内置了 tailscale-community，我们需要确保在 feeds 之后将其替换。
 # 在编译过程中，diy.sh 执行时 feeds 已经更新完毕，此时可以强行删除 feeds 里的该 app，并从指定仓库 clone。
 # 我们在编译的当前环境把删除并重新拉取的逻辑写在 diy.sh 尾部：
-rm -rf feeds/kiddin9/luci-app-tailscale-community feeds/kiddin9/tailscale
-rm -rf package/feeds/kiddin9/luci-app-tailscale-community package/feeds/kiddin9/tailscale
+# rm -rf feeds/kiddin9/luci-app-tailscale-community feeds/kiddin9/tailscale
+# rm -rf package/feeds/kiddin9/luci-app-tailscale-community package/feeds/kiddin9/tailscale
 
 git clone --depth=1 https://github.com/Tokisaki-Galaxy/luci-app-tailscale-community package/luci-app-tailscale-community
 # 同时确保 tailscale 本体包存在（如果 tailscale 没有了，我们需要从 feeds/packages 或 feeds/kiddin9 重新拉取，或者保留原 feeds/kiddin9 中的 tailscale 本体）
