@@ -57,5 +57,5 @@ chmod +x files/etc/uci-defaults/99-custom-settings
 # rm -rf feeds/kiddin9/luci-app-tailscale-community feeds/kiddin9/tailscale
 # rm -rf package/feeds/kiddin9/luci-app-tailscale-community package/feeds/kiddin9/tailscale
 
-git clone --depth=1 https://github.com/Tokisaki-Galaxy/luci-app-tailscale-community package/luci-app-tailscale-community
+# git clone --depth=1 https://github.com/Tokisaki-Galaxy/luci-app-tailscale-community package/luci-app-tailscale-community
 # 同时确保 tailscale 本体包存在（如果 tailscale 没有了，我们需要从 feeds/packages 或 feeds/kiddin9 重新拉取，或者保留原 feeds/kiddin9 中的 tailscale 本体）
