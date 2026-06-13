@@ -5,6 +5,7 @@ SHELL_FOLDER=$(dirname $(readlink -f "$0"))
 /bin/bash "$SHELL_FOLDER/../rockchip_armv8/diy.sh"
 
 rm -rf package/feeds/kiddin9/luci-app-turboacc
+rm -rf package/feeds/kiddin9/shortcut-fe
 #sed -i "s/CONFIG_PACKAGE_kmod-shortcut-fe=y/# CONFIG_PACKAGE_kmod-shortcut-fe is not set/" .config
 
 # 创建首开机脚本以设定网络配置、网口和IP/DNS等
