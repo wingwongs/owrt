@@ -6,15 +6,20 @@ SHELL_FOLDER=$(dirname $(readlink -f "$0"))
 
 shopt -s extglob
 
-# 彻底移除 luci-app-turboacc 和所有 shortcut-fe (SFE) 相关包
-# luci-app-turboacc 的 Makefile 默认 INCLUDE_SHORTCUT_FE=y，会自动拉入 kmod-shortcut-fe-cm
-# shortcut-fe 在 Linux 6.12+ 内核上编译失败，必须从源码树中完全删除
+# ===== 彻底移除 Shortcut-FE (SFE) 相关的一切 =====
+# 问题根源：common/diy.sh 第62行从 coolsnowwolf/lede 拉取了 hack-6.12 补丁目录，
+# 其中 953-net-patch-linux-kernel-to-support-shortcut-fe.patch 在 Linux 6.12.92 的
+# include/linux/skbuff.h 上 patch 失败（Hunk #1 FAILED at 1012），导致整个编译中断。
+
+# 1. 删除 SFE 内核补丁（根本原因！补丁与 6.12.92 不兼容）
+rm -rf target/linux/generic/hack-6.12/953-net-patch-linux-kernel-to-support-shortcut-fe.patch
+
+# 2. 删除 SFE 相关的软件包源码
 rm -rf feeds/kiddin9/luci-app-turboacc
 rm -rf feeds/kiddin9/shortcut-fe
+rm -rf feeds/kiddin9/fast-classifier
 rm -rf package/feeds/kiddin9/luci-app-turboacc
 rm -rf package/feeds/kiddin9/shortcut-fe
-# 同时删除 fast-classifier（shortcut-fe 的替代连接管理器，同样依赖 kmod-shortcut-fe）
-rm -rf feeds/kiddin9/fast-classifier
 rm -rf package/feeds/kiddin9/fast-classifier
 
 # 创建首开机脚本以设定网络配置、网口和IP/DNS等
