@@ -22,6 +22,14 @@ rm -rf package/feeds/kiddin9/luci-app-turboacc
 rm -rf package/feeds/kiddin9/shortcut-fe
 rm -rf package/feeds/kiddin9/fast-classifier
 
+# 3. 修复 natflow 编译错误（上游 ptpt52/natflow commit 15621bc 有未使用变量 bug）
+# natflow_path.c:5900 声明了 int i 但仅在 #ifdef 条件编译块中使用（非本平台），
+# -Werror=unused-variable 导致编译失败。
+# 方法：在 natflow OpenWrt Makefile 中修改内核模块编译命令，追加 EXTRA_CFLAGS
+for natdir in feeds/kiddin9/natflow package/feeds/kiddin9/natflow; do
+  [ -f "$natdir/Makefile" ] && sed -i '/M=.*PKG_BUILD_DIR/,/modules/{s/modules$/EXTRA_CFLAGS+="-Wno-error=unused-variable" modules/}' "$natdir/Makefile"
+done
+
 # 创建首开机脚本以设定网络配置、网口和IP/DNS等
 mkdir -p files/etc/uci-defaults
 cat << 'EOF' > files/etc/uci-defaults/99-custom-settings
