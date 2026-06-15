@@ -26,9 +26,9 @@ rm -rf package/feeds/kiddin9/fast-classifier
 # natflow_path.c:5900 声明了 int i 但仅在 #ifdef 条件编译块中使用（非本平台），
 # -Werror=unused-variable 导致编译失败。
 # 方法：在 natflow OpenWrt Makefile 中修改内核模块编译命令，追加 EXTRA_CFLAGS
-for natdir in feeds/kiddin9/natflow package/feeds/kiddin9/natflow; do
-  [ -f "$natdir/Makefile" ] && sed -i '/M=.*PKG_BUILD_DIR/,/modules/{s/modules$/EXTRA_CFLAGS+="-Wno-error=unused-variable" modules/}' "$natdir/Makefile"
-done
+# for natdir in feeds/kiddin9/natflow package/feeds/kiddin9/natflow; do
+#   [ -f "$natdir/Makefile" ] && sed -i '/M=.*PKG_BUILD_DIR/,/modules/{s/modules$/EXTRA_CFLAGS+="-Wno-error=unused-variable" modules/}' "$natdir/Makefile"
+# done
 
 # 创建首开机脚本以设定网络配置、网口和IP/DNS等
 mkdir -p files/etc/uci-defaults
@@ -46,14 +46,14 @@ uci set network.lan.ipv6='1'
 
 # 2. 绑定网口与设置 wan6
 # 绑定物理网口：lan -> eth0, wan -> eth1
-uci set network.lan.device='eth0'
-uci set network.wan.device='eth1'
+# uci set network.lan.device='eth0'
+# uci set network.wan.device='eth1'
 
 # 将 wan6 的物理接口也设置为 eth1
 # 在 OpenWrt 中，wan6 可能会直接使用 @wan，如果显式设定 device，则设定为 eth1
-if uci get network.wan6 >/dev/null 2>&1; then
-    uci set network.wan6.device='eth1'
-fi
+# if uci get network.wan6 >/dev/null 2>&1; then
+#     uci set network.wan6.device='eth1'
+# fi
 
 # 3. 设置默认密码为 8890019
 # OpenWrt 密码是通过 shadow 文件设置，使用 chpasswd 或 passwd 修改
