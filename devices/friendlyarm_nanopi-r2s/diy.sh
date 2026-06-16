@@ -55,12 +55,6 @@ uci set network.lan.ipv6='1'
 #     uci set network.wan6.device='eth1'
 # fi
 
-# 3. 设置默认密码为 8890019
-# OpenWrt 密码是通过 shadow 文件设置，使用 chpasswd 或 passwd 修改
-# 在 uci-defaults 脚本中我们可以直接执行修改命令或将哈希写入 shadow 
-# 这里为了可靠性，使用最直接的办法：在开机时通过 chpasswd 修改
-echo "root:8890019" | chpasswd
-
 # 保存生效
 uci commit network
 uci commit dhcp
