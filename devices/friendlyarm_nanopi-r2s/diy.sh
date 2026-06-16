@@ -55,6 +55,9 @@ uci set network.lan.ipv6='1'
 #     uci set network.wan6.device='eth1'
 # fi
 
+# 3. 旁路由模式需要关闭自身DHCP服务 (由主路由分发DHCP)
+uci set dhcp.lan.ignore='1'
+
 # 保存生效
 uci commit network
 uci commit dhcp
